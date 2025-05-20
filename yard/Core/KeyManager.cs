@@ -8,18 +8,16 @@ using System.Text;
 using System.Threading.Tasks;
 using yard.Objects;
 
-namespace yard.Core
+namespace yard.Core;
+
+internal class KeyManager
 {
-    internal class KeyManager
+    internal static bool AssignKeyToUser(Key key, DiscordMember member)
     {
-        internal static bool AssignKeyToUser(Key key, DiscordMember member)
-        {
-            if (!InventoryManager.AddKey(member.Id, key))
-                return false;
+        if (!InventoryManager.AddKey(member.Id, key))
+            return false;
 
-            InventoryManager.SaveToFile();
-            return true;
-        }
+        InventoryManager.SaveToFile();
+        return true;
     }
-
 }

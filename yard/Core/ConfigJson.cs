@@ -6,13 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace yard.Core
+namespace yard.Core;
+
+internal struct ConfigJson
 {
-    internal struct ConfigJson
-    {
-        [JsonProperty("token")]
-        public string Token { get; private set; }
-        [JsonProperty("prefix")]
-        public string Prefix { get; private set; }
-    }
+    [JsonProperty("token")]
+    public string Token { get; private set; }
+    [JsonProperty("prefix")]
+    public string Prefix { get; private set; }
 }
