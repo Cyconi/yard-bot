@@ -90,8 +90,8 @@ public class Bot
                 return;
 
             if (InventoryManager.Get(e.Member.Id) == null && await InventoryManager.Create(e.Member, e.Guild))                
-                CLog.L("Server", e.Member, $"Auto-created inventory for `<@{e.Member.Id}>`", Channel.command);
-            
+                CLog.L(e.Member, $"Auto-created inventory for `<@{e.Member.Id}>`", Channel.command);
+
         };
 
         await CLog.ToConsole("Connecting bot to discord...");
