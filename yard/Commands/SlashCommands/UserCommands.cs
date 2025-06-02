@@ -16,14 +16,14 @@ internal class UserCommands : ApplicationCommandModule
     [SlashCooldown(1, 5, SlashCooldownBucketType.User)]
     public async Task RedeemKey(InteractionContext ctx, [Option("key", "key")] string key)
     {
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /redeem command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /redeem command", Channel.command);
 
         var user = await ctx.Guild.GetMemberAsync(ctx.User.Id);
         var role = ctx.Guild.GetRole(1330584332297048105);
 
         if (user.Roles.Any(r => r.Id == role.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` already has access and attempted to redeem a key.", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> already has access and attempted to redeem a key.", Channel.command);
             await ctx.CreateResponseAsync("You already have access and cannot redeem a key!", true);
             return;
         }
@@ -44,8 +44,8 @@ internal class UserCommands : ApplicationCommandModule
         keyObject.DateRedeemed = DateTime.UtcNow;
 
         await user.GrantRoleAsync(role);
-        CLog.L(ctx.User, $"Key {key} has been redeemed by `<@{ctx.User.Id}>`", Channel.auth);
-        CLog.L(ctx.User, $"Key {key} successfully redeemed by `<@{ctx.User.Id}>`", Channel.command);
+        CLog.L(ctx.User, $"Key {key} has been redeemed by <@{ctx.User.Id}>", Channel.invite);
+        CLog.L(ctx.User, $"Key {key} successfully redeemed by <@{ctx.User.Id}>", Channel.command);
 
         await ctx.CreateResponseAsync($"Key successfully redeemed by <@{ctx.User.Id}>", true);
     }
@@ -54,13 +54,13 @@ internal class UserCommands : ApplicationCommandModule
     [SlashCooldown(1, 5, SlashCooldownBucketType.User)]
     public async Task ShowInventory(InteractionContext ctx)
     {
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /inventory command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /inventory command", Channel.command);
 
         var inventory = InventoryManager.Get(ctx.User.Id);
 
         if (inventory == null || inventory.Keys.Count == 0)
         {
-            CLog.E(ctx.User, $"Inventory check: No inventory found for `<@{ctx.User.Id}>`", Channel.command);
+            CLog.E(ctx.User, $"Inventory check: No inventory found for <@{ctx.User.Id}>", Channel.command);
             await ctx.CreateResponseAsync("Your inventory is empty.", true);
             return;
         }
@@ -74,7 +74,7 @@ internal class UserCommands : ApplicationCommandModule
             builder.AppendLine($"- `{key.KeyValue}` | {redemptionStatus}");
         }
 
-        CLog.L(ctx.User, $"Displayed inventory for `<@{ctx.User.Id}>`.", Channel.command);
+        CLog.L(ctx.User, $"Displayed inventory for <@{ctx.User.Id}>", Channel.command);
         await ctx.CreateResponseAsync(builder.ToString(), true);
     }
 }

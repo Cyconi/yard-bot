@@ -28,11 +28,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` tried calling /key command with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> tried calling /key command with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /key command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /key command", Channel.command);
 
         if (InventoryManager.Get(user.Id) == null && !await InventoryManager.Create(user, ctx.Guild))
         {
@@ -49,15 +49,15 @@ internal class AdminCommands : ApplicationCommandModule
             await ctx.CreateResponseAsync("Failed to assign the key. User may not have an inventory.", true);
             return;
         }
-        CLog.L(ctx.User, $"Generated Key: {key}", Channel.command);
+        CLog.L(ctx.User, $"Generated Key: `{key}`", Channel.command);
 
         try
         {
             var member = await ctx.Guild.GetMemberAsync(user.Id);
             await member.SendMessageAsync($"A new key has been added to your inventory, please do `/inventory` in the yard server to view");
-            CLog.L(ctx.User, $"Inventory update message sent DM to `<@{user.Id}>` for key {key}.", Channel.command);
+            CLog.L(ctx.User, $"Inventory update message sent DM to <@{user.Id}> for key `{key}`", Channel.command);
         }
-        catch (Exception ex) { CLog.E(ctx.User, $"Failed to send DM to `<@{user.Id}>` Error: {ex.Message}", Channel.error); }
+        catch (Exception ex) { CLog.E(ctx.User, $"Failed to send DM to <@{user.Id}> Error: {ex.Message}", Channel.error); }
 
         await ctx.CreateResponseAsync($"Generated Key: `{key}` assigned to <@{user.Id}>", true);
     }
@@ -68,11 +68,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /masskey command with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /masskey command with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /masskey command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /masskey command", Channel.command);
 
         int keysGenerated = 0;
 
@@ -84,21 +84,21 @@ internal class AdminCommands : ApplicationCommandModule
 
             if (!InventoryManager.AddKey(inventory.UserId, new Key(newKey, ctx.User.Id)))
             {
-                CLog.L(ctx.User, $"Failed to generate key for `<@{inventory.UserId}>`", Channel.command);
+                CLog.L(ctx.User, $"Failed to generate key for <@{inventory.UserId}>", Channel.command);
                 continue;
             }
 
             keysGenerated++;
-            CLog.L(ctx.User, $"Generated Key: {newKey} for `<@{inventory.UserId}>`", Channel.command);
+            CLog.L(ctx.User, $"Generated Key: `{newKey}` for <@{inventory.UserId}>", Channel.command);
 
             // Send user a DM notifying them
             try
             {
                 var member = await ctx.Guild.GetMemberAsync(inventory.UserId);
                 await member.SendMessageAsync($"A key has been added to your inventory, please do `/inventory` in the yard server to view");
-                CLog.L(ctx.User, $"Sent DM to `<@{inventory.UserId}>` about new key {newKey}.", Channel.command);
+                CLog.L(ctx.User, $"Sent DM to <@{inventory.UserId}> for key `{newKey}`", Channel.command);
             }
-            catch (Exception ex) { CLog.E(ctx.User, $"Failed to send DM to `<@{inventory.UserId}>`. Error: {ex.Message}", Channel.error); }
+            catch (Exception ex) { CLog.E(ctx.User, $"Failed to send DM to <@{inventory.UserId}>. Error: {ex.Message}", Channel.error); }
         }
 
         await ctx.CreateResponseAsync($"Successfully generated `{keysGenerated}` new keys and added them to inventories.", true);
@@ -110,11 +110,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /findkey for {key} with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /findkey for {key} with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /findkey for {key}", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /findkey for `{key}`", Channel.command);
 
         // Locate the inventory containing the key
         var inventory = InventoryManager.Inventories.FirstOrDefault(inv => inv.Keys.Any(k => k.KeyValue == key));
@@ -122,7 +122,7 @@ internal class AdminCommands : ApplicationCommandModule
 
         if (keyObject == null)
         {
-            CLog.L(ctx.User, $"Key {key} not found in any inventory.", Channel.command);
+            CLog.L(ctx.User, $"Key `{key}` not found in any inventory.", Channel.command);
             await ctx.CreateResponseAsync($"Key `{key}` not found.", true);
             return;
         }
@@ -139,7 +139,7 @@ internal class AdminCommands : ApplicationCommandModule
             **Created By:** <@{keyObject.CreatedBy}>
             """;
 
-        CLog.L(ctx.User, $"Displayed full details of key {key}.", Channel.command);
+        CLog.L(ctx.User, $"Displayed full details of key `{key}`", Channel.command);
         await ctx.CreateResponseAsync(response, true);
     }
 
@@ -149,11 +149,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /deletekey for {key} with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /deletekey for {key} with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /deletekey for {key}", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /deletekey for `{key}`", Channel.command);
 
         // Find the inventory containing the key
         var inventory = InventoryManager.Inventories.FirstOrDefault(inv => inv.Keys.Any(k => k.KeyValue == key));
@@ -161,7 +161,7 @@ internal class AdminCommands : ApplicationCommandModule
 
         if (keyObject == null)
         {
-            CLog.L(ctx.User, $"Failed to delete key {key}: Key not found.", Channel.command);
+            CLog.E(ctx.User, $"Failed to delete key `{key}`: Key not found.", Channel.error);
             await ctx.CreateResponseAsync($"Key `{key}` not found in any inventory.", true);
             return;
         }
@@ -169,7 +169,7 @@ internal class AdminCommands : ApplicationCommandModule
         // Remove the key
         inventory.Keys.Remove(keyObject);
 
-        CLog.L(ctx.User, $"Successfully deleted key {key} from `<@{inventory.UserId}>` inventory.", Channel.command);
+        CLog.L(ctx.User, $"Successfully deleted key `{key}` from <@{inventory.UserId}> inventory.", Channel.command);
         await ctx.CreateResponseAsync($"Successfully deleted key `{key}` from <@{inventory.UserId}> inventory.", true);
     }
 
@@ -179,12 +179,12 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /purgekeys command with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /purgekeys command with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
 
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /purgekeys command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /purgekeys command", Channel.command);
 
         int removedCount = 0;
 
@@ -195,7 +195,7 @@ internal class AdminCommands : ApplicationCommandModule
             removedCount += (beforeCount - inventory.Keys.Count);
         }
 
-        CLog.L(ctx.User, $"Purged {removedCount} non-redeemed keys from inventories.", Channel.command);
+        CLog.L(ctx.User, $"Purged `{removedCount}` non-redeemed keys from inventories.", Channel.command);
         await ctx.CreateResponseAsync($"Successfully purged `{removedCount}` non-redeemed keys.", true);
     }
 
@@ -203,18 +203,18 @@ internal class AdminCommands : ApplicationCommandModule
     [SlashRequireUserPermissions(Permissions.ModerateMembers), SlashCommandPermissions(Permissions.ModerateMembers)]
     public async Task ListInventories(InteractionContext ctx)
     {
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /listinventories command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /listinventories command", Channel.command);
 
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` attempted /listinventory with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> attempted /listinventory with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
 
         if (ctx.Channel.Id != 1372811138508783646)
         {
-            await ctx.CreateResponseAsync("Wrong channel, please try again in <@1372811138508783646>", true);
+            await ctx.CreateResponseAsync("Wrong channel, please try again in <#1372811138508783646>", true);
             return;
         }
 
@@ -254,11 +254,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /userinventory for `<@{user.Id}>` with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /userinventory for <@{user.Id}> with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /userinventory for `<@{user.Id}>`", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /userinventory for <@{user.Id}>", Channel.command);
 
         var inventory = InventoryManager.Get(user.Id);
 
@@ -277,7 +277,7 @@ internal class AdminCommands : ApplicationCommandModule
             builder.AppendLine($"- `{key.KeyValue}` | {redemptionStatus}");
         }
 
-        CLog.L(ctx.User, $"Displayed inventory for `<@{user.Id}>`", Channel.command);
+        CLog.L(ctx.User, $"Displayed inventory for <@{user.Id}>", Channel.command);
         await ctx.CreateResponseAsync(builder.ToString(), true);
     }
 
@@ -287,24 +287,24 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /clearinventory for `<@{user.Id}>` with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /clearinventory for <@{user.Id}> with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /clearinventory for <@{user.Id}>", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /clearinventory for <@{user.Id}>", Channel.command);
 
         var inventory = InventoryManager.Get(user.Id);
 
         if (inventory == null)
         {
-            CLog.L( ctx.User, $"Attempted to clear inventory for `<@{user.Id}>` but no inventory was found.", Channel.command);
+            CLog.L(ctx.User, $"Attempted to clear inventory for <@{user.Id}> but no inventory was found.", Channel.command);
             await ctx.CreateResponseAsync($"No inventory found for <@{user.Id}>", true);
             return;
         }
 
         inventory.Keys.Clear();
 
-        CLog.L(ctx.User, $"Successfully cleared inventory for `<@{user.Id}>`", Channel.command);
+        CLog.L(ctx.User, $"Successfully cleared inventory for <@{user.Id}>", Channel.command);
         await ctx.CreateResponseAsync($"Successfully cleared <@{user.Id}> inventory.", true);
     }
 
@@ -314,11 +314,11 @@ internal class AdminCommands : ApplicationCommandModule
     {
         if (!Program.adminIds.Contains(ctx.User.Id))
         {
-            CLog.E(ctx.User, $"`<@{ctx.User.Id}>` called /makeinventories command with insufficient permissions", Channel.command);
+            CLog.E(ctx.User, $"<@{ctx.User.Id}> called /makeinventories command with insufficient permissions", Channel.command);
             await ctx.CreateResponseAsync("You do not have access to this command.", true);
             return;
         }
-        CLog.L(ctx.User, $"`<@{ctx.User.Id}>` called /makeinventories command", Channel.command);
+        CLog.L(ctx.User, $"<@{ctx.User.Id}> called /makeinventories command", Channel.command);
 
         var role = ctx.Guild.GetRole(1330584332297048105);
         var members = await ctx.Guild.GetAllMembersAsync();
@@ -330,11 +330,11 @@ internal class AdminCommands : ApplicationCommandModule
             {
                 if (!await InventoryManager.Create(member, ctx.Guild))
                 {
-                    CLog.L(ctx.User, $"Failed to create inventory for `<@{member.Id}>`", Channel.command);
+                    CLog.L(ctx.User, $"Failed to create inventory for <@{member.Id}>", Channel.command);
                     continue;
                 }
 
-                CLog.L(ctx.User, $"Created inventory for `<@{member.Id}>`", Channel.command);
+                CLog.L(ctx.User, $"Created inventory for <@{member.Id}>", Channel.command);
                 createdCount++;
             }
         }

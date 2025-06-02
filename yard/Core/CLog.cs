@@ -12,36 +12,49 @@ namespace yard.Core;
 
 public enum Channel : ulong
 {
+    alerts = 1368860451873620039,
+    publicAlerts = 1373602466263994390,
     server = 1372811138508783646,
     command = 1372811182758695033,
-    auth = 1372811207593164810,
+    invite = 1343288628935397486,
+    exiled = 1330579751517028503,
     error = 1372811232569983038
 }
 internal class CLog
 {
     private static readonly SemaphoreSlim logSemaphore = new(1, 1);
 
-    private static readonly Dictionary<Channel, List<string>> messageQueues = new()
+    private static readonly Dictionary<Channel, List<string>> messageQueues = 
+        ((Channel[])Enum.GetValues(typeof(Channel))).ToDictionary(channel => channel, _ => new List<string>());
+
+    private static readonly Dictionary<Channel, DateTime> lastMessageTimes = 
+        ((Channel[])Enum.GetValues(typeof(Channel))).ToDictionary(channel => channel, _ => DateTime.MinValue);
+
+    private static readonly Dictionary<Channel, SemaphoreSlim> semaphores = 
+        ((Channel[])Enum.GetValues(typeof(Channel))).ToDictionary(channel => channel, _ => new SemaphoreSlim(1, 1));
+
+
+    /*private static readonly Dictionary<Channel, List<string>> messageQueues = new()
     {
         { Channel.server, new List<string>() },
         { Channel.command, new List<string>() },
-        { Channel.auth, new List<string>() },
+        { Channel.invite, new List<string>() },
         { Channel.error, new List<string>() }
     };
     private static readonly Dictionary<Channel, DateTime> lastMessageTimes = new()
     {
         { Channel.server, DateTime.MinValue },
         { Channel.command, DateTime.MinValue },
-        { Channel.auth, DateTime.MinValue },
+        { Channel.invite, DateTime.MinValue },
         { Channel.error, DateTime.MinValue }
     };
     private static readonly Dictionary<Channel, SemaphoreSlim> semaphores = new()
     {
         { Channel.server, new SemaphoreSlim(1, 1) },
         { Channel.command, new SemaphoreSlim(1, 1) },
-        { Channel.auth, new SemaphoreSlim(1, 1) },
+        { Channel.invite, new SemaphoreSlim(1, 1) },
         { Channel.error, new SemaphoreSlim(1, 1) }
-    };
+    };*/
 
     public static async Task LogMessageToDiscord(DiscordUser discordUser, string message, Channel channelId)
     {
@@ -50,7 +63,7 @@ internal class CLog
         {
             messageQueues[channelId].Add(message);
             var channel = await Bot.Client.GetChannelAsync((ulong)channelId);
-            var allMessages = string.Join("\n", messageQueues[channelId].Select(m => discordUser == null ? $"{m}" : $"[{discordUser.Username}] {m}"));
+            var allMessages = string.Join("\n", messageQueues[channelId].Select(m => discordUser == null ? $"{m}" : $"`[{discordUser.Username}]` {m}"));
 
             // Log to a file for the user
             if (discordUser != null)
@@ -66,10 +79,32 @@ internal class CLog
 
             while (allMessages.Length > 0)
             {
-                var flushMessage = allMessages.Length <= 2000 ? allMessages : allMessages.Substring(0, 2000);
-                allMessages = allMessages.Length <= 2000 ? "" : allMessages.Substring(2000);
+                var flushMessage = allMessages.Length <= 2000 ? allMessages : allMessages[..2000];
+                allMessages = allMessages.Length <= 2000 ? "" : allMessages[2000..];
 
-                try { await channel.SendMessageAsync(channelId == Channel.error ? $"```{flushMessage}```" : $"`{flushMessage}`"); } catch (Exception ex) { ErrorToConsole($"Failed to send log message to Discord: {flushMessage}", ex).Wait(); }
+                try
+                {
+                    string formattedMessage = flushMessage;
+
+                    switch (channelId)
+                    {
+                        case Channel.error:
+                            formattedMessage = $"```{flushMessage}```";
+                            break;
+                        case Channel.server:
+                            formattedMessage = $"{flushMessage}";
+                            break;
+                        case Channel.command:
+                            formattedMessage = $"{flushMessage}";
+                            break;
+                        case Channel.invite:
+                            formattedMessage = $"{flushMessage}";
+                            break;
+                    }
+
+                    await channel.SendMessageAsync(formattedMessage);
+                }
+                catch (Exception ex) { ErrorToConsole($"Failed to send log message to Discord: {flushMessage}", ex).Wait(); }
             }
 
             messageQueues[channelId].Clear();
